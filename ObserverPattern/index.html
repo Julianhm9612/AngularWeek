@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Observer Pattern</title>
+</head>
+<style>
+    .sales {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 90vh;
+    }
+
+    .sales article p {
+        text-align: center;
+        color: gray;
+        padding: 15px;
+        box-shadow: 1px 1px 1px 1px gray;
+        margin-bottom: 15px;
+        font-weight: bolder;
+    }
+
+    .sales input {
+        padding: 5px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+</style>
+
+<body>
+
+    <main>
+
+        <section class="sales">
+            <div>
+                <input type="number" id="hungryValue" max="3">
+            </div>
+            <article id="potatoChips">
+
+            </article>
+            <article id="barquillos">
+
+            </article>
+
+        </section>
+
+    </main>
+
+    <script>
+        // Observable
+        //Todo observable tiene subscribe y unsubscribe
+
+        class Hungry {
+            constructor() {
+                this._partiesToNotify = [];
+            }
+            Subscribe(subscriber) {
+                this._partiesToNotify.push(subscriber);
+            }
+
+            Unsubscribe(subscriber) {
+                this._partiesToNotify.remove(subscriber);
+            }
+
+            SetHungryLevels(hungryLevel) {
+                this._hungryLevel = hungryLevel;
+
+                for (var i = 0; i < this._partiesToNotify.length; i++) {
+                    this._partiesToNotify[i](hungryLevel);
+                }
+            }
+        }
+
+        //subscritor
+        class PotatoChips {
+            constructor() {
+            }
+            OnHungryLevelChange(newHungryLevelAmount) {
+                let potatoChips = document.getElementById("potatoChips");
+                if (newHungryLevelAmount >= 60) {
+                    potatoChips.innerHTML = `<p>Llegó la papa con pimienta y unas cuantas de natural por si usted fue de los desafortunados y no alcanzó a comprar de esos 2 sabores esta semana, <br/> de limón tambien tengo, no se preocupe. </p>`;
+                } else {
+                    potatoChips.innerHTML = "";
+                }
+            }
+        }
+
+        //subscritor
+        class Barquillos {
+            constructor() {
+            }
+            OnHungryLevelChange(newHungryLevelAmount) {
+                let barquillos = document.getElementById("barquillos");
+                if (newHungryLevelAmount >= 20) {
+                    barquillos.innerHTML = `<p> Buenos días, <br/>
+                                            estoy vendiendo deliciosos barquillos con arequipe por solo 1.000 pesitos.<br/>
+                                            Lleve la vieja confiable.<br/>
+                                            </p>`;
+                } else {
+                    barquillos.innerHTML = "";
+                }
+            }
+        }
+
+        var s = new Hungry();
+        var p = new PotatoChips();
+        var b = new Barquillos();
+
+        s.Subscribe(p.OnHungryLevelChange); //p is now a subscriber
+        s.Subscribe(b.OnHungryLevelChange); //p is now a subscriber
+
+        document.getElementById("hungryValue").onkeypress = function (e) {
+            if (e.keyCode == 13) {
+                numberValue = document.getElementById("hungryValue").value;
+                s.SetHungryLevels(numberValue); //s will notify all subscribers
+
+            }
+        }
+
+    </script>
+</body>
+
+</html>
